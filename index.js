@@ -1,0 +1,87 @@
+const userTab = document.querySelector("[data-userWeather]");
+const searchTab = document.querySelector("[data-searchWeather]");
+const userContainer = document.querySelector(".weather-container");
+const grantAccessContainer = document.querySelector(".grant-location-container");
+const searchForm = document.querySelector("[data-searchForm]");
+const loadingScreen = document.querySelector(".loading-container");
+const userInfoContainer = document.querySelector(".user-info-container");
+
+let currentTab = userTab;
+let API_KEY = "d1845658f92b31c64bd94f06f7188c9c";
+currentTab.classList.add("current-tab");
+
+function switchTab(clickedTab){
+
+    if(clickedTab != currentTab){
+        currentTab.classList.remove("current-tab");
+        currentTab = clickedTab;
+        clickedTab.classList.add("current-tab");
+
+        if(!searchForm.classList.contains("active")){
+            userInfoContainer.classList.remove("active");
+            grantAccessContainer.classList.remove("active");
+            searchForm.classList.add("active");
+        }
+        else{
+            searchForm.classList.remove("active");
+            userInfoContainer.classList.remove("active");
+            getFromSessionStorage();
+        }
+    }
+}
+
+userTab.addEventListener("click", ()=>{
+    //pass clicked tab as input parameter
+    switchTab(userTab);
+});
+searchTab.addEventListener("click", ()=>{
+    //pass clicked tab as input parameter
+    switchTab(searchTab);
+});
+
+//check if coordinates are already present in session storage
+function getFromSessionStorage(){
+    const localCoordinates = sessionStorage.getItem("user-coordinates");
+    if(!localCoordinates){
+        grantAccessContainer.classList.add("active");
+    }
+    else{
+        const coordinates= JSON.parse(localCoordinates);
+        fetchUserWeatherinfo(coordinates);
+    }
+}
+
+async function fetchUserWeatherinfo(coordinates){
+    const {lat, lon} = coordinates; 
+    //make grantContainer invisible
+    grantAccessContainer.classList.remove("active");
+    //make loader visible
+    loadingScreen.classList.add("active");
+
+    try{
+        const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
+        const data = await response.json();
+
+        loadingScreen.classList.remove("active");
+        userInfoContainer.classList.add("active");
+        renderWeatherInfo(data);
+    }
+    catch(err){
+        loadingScreen.classList.remove("active");
+    }
+}
+function renderWeatherInfo(weatherInfo){
+    const cityName = document.querySelector("[data-cityName]");
+    const countryIcon = document.querySelector("[data-countryIcon]");
+    const desc = document.querySelector("[data-weatherDesc]");
+    const weatherIcon = document.querySelector("[data-weatherIcon]");
+    const temp = document.querySelector("[data-temp]");
+    const windSpeed = document.querySelector("[data-windspeed]");
+    const humidity = document.querySelector("[data-humidity]");
+    const cloudiness = document.querySelector("[data-cloudiness]");
+
+
+}
+   
+
